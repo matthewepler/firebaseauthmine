@@ -69,12 +69,9 @@ function PublicRoute ({component: Component, currentUser, ...rest}) {
       {...rest}
       render={
         (props) => {
-          console.log('here', currentUser);
          if (!currentUser) {
-           console.log('hope not here')
             return <Component {...props} />
           } else {
-            console.log('hopefully here')
             return <Redirect to={`/${currentUser.linkPath}`} />
          }
       }}

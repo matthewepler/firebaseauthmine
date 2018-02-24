@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import glamorous from 'glamorous';
 import map from 'lodash.map';
 import DragSortableList from 'react-drag-sortable'
+import sortby from 'lodash.sortby';
 
 import ActionItem from '../ActionItem';
 
@@ -61,7 +62,18 @@ export default class Client extends Component {
   }
 
   onListSort = (sortedList, dropEvent) => {
-    console.log('sortedList', sortedList, dropEvent);
+    // for each action item...
+    sortedList.forEach(action => {
+      const props = action.content.props;
+      console.log(props);
+
+      // get the database ref for this action
+      const actionRef = database.ref(`${this.refString}/actions/${props.dbKey}`)
+      // update its rank
+      actionRef.update({
+        rank: action.rank,
+      })
+    })
   }
 
   render () {
@@ -71,12 +83,18 @@ export default class Client extends Component {
           action={a.action}
           checked={a.checked}
           description={a.description}
-          key={key}
+          key={key} // not accessible by default
+          dbKey={key}
           root={`${this.refString}/actions/${key}`}
           >
         </ActionItem>
-      )
+      ),
+      myRank: a.rank,
     }));
+
+    const sortedActions = actions && sortby(actions, action => {
+      return action.myRank;
+    });
 
     return !this.state.data ? <h1>Loading</h1> : (
       <div>
@@ -107,7 +125,7 @@ export default class Client extends Component {
 
         <div className="row">
           <div className="col-sm-6 col-sm-offset-3">
-            <DragSortableList items={actions} onSort={this.onListSort} dropBackTransitionDuration={0.3} type="vertical"/>
+            <DragSortableList items={sortedActions} onSort={this.onListSort} dropBackTransitionDuration={0.3} type="vertical"/>
           </div>
         </div>
 

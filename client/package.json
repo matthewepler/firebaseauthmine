@@ -11,6 +11,7 @@
     "glamor": "^2.20.40",
     "glamorous": "^4.11.6",
     "lodash.map": "^4.6.0",
+    "lodash.sortby": "^4.7.0",
     "react": "^15.4.0",
     "react-dom": "^15.4.0",
     "react-drag-sortable": "^1.0.6",

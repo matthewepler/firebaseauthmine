@@ -54,7 +54,7 @@ function PrivateRoute ({ component: Component, currentUser, ...rest }) {
             return <Component {...props} />
           } else {
             return <Redirect to={{pathname: '/login', state: {from: props.location}}} />
-          } 
+          }
         } else {
             return <Redirect to={{pathname: '/login', state: {from: props.location}}} />
           }
@@ -69,9 +69,12 @@ function PublicRoute ({component: Component, currentUser, ...rest}) {
       {...rest}
       render={
         (props) => {
+          console.log('here', currentUser);
          if (!currentUser) {
+           console.log('hope not here')
             return <Component {...props} />
           } else {
+            console.log('hopefully here')
             return <Redirect to={`/${currentUser.linkPath}`} />
          }
       }}
@@ -91,6 +94,7 @@ export default class App extends Component {
   componentDidMount () {
     this.removeListener = firebaseAuth().onAuthStateChanged((user) => {
       if (user) {
+        console.log('looking for user with uid:', user.uid);
         this.setState({
           authed: true,
           loading: false,
@@ -119,16 +123,18 @@ export default class App extends Component {
       .equalTo(uid)
       .once('value', (snapshot) => {
         if (snapshot.val()) {
-          this.setState({ 
+          this.setState({
             currentUser: Object.values(snapshot.val())[0],
             key: Object.keys(snapshot.val())[0],
           });
+          console.log('user found')
           return;
         } else {
+          console.log('no user found')
         }
       });
   }
-  
+
   render() {
     return this.state.loading === true ? <h1>Loading</h1> : (
       <BrowserRouter>
@@ -139,16 +145,16 @@ export default class App extends Component {
             </Link>
             { this.state.authed && <SignOut onClick={() => logout()}>Sign Out</SignOut>}
           </Header>
-          
+
           <NotificationContainer/>
-          
+
           <div className="container">
             <div className="row">
               <Switch>
                 <Route exact path='/' component={Home} />
-                <PublicRoute currentUser={this.state.currentUser} path='/login' component={Login} />
+                <PublicRoute authed={this.state.authed} currentUser={this.state.currentUser} path='/login' component={Login} />
                 <PublicRoute currentUser={this.state.currentUser} path='/register' component={Register} />
-                <PrivateRoute authed={this.state.authed} currentUser={this.state.currentUser} path='/client/:id' component={Client} />
+                <PrivateRoute  currentUser={this.state.currentUser} path='/client/:id' component={Client} />
                 <PrivateRoute authed={this.state.authed} currentUser={this.state.currentUser} path='/coach/:id' component={Coach} />
                 <Route render={() => <h3>404! Sorry bud. </h3>} />
               </Switch>
